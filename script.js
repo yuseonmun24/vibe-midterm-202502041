@@ -62,6 +62,7 @@ const viewPanels = document.querySelectorAll("[data-panel]");
 let menus = [];
 let cart = [];
 let orders = [];
+const selectedOptions = new Map();
 
 function isValidMenuList(value) {
   return Array.isArray(value)
@@ -84,7 +85,7 @@ function isValidOrders(value) {
     && Number.isFinite(Date.parse(order.createdAt))
     && Number.isFinite(order.total)
     && Array.isArray(order.items)
-    && ["접수", "제조 완료"].includes(order.status)
+    && ["접수", "제조 대기", "제조 완료"].includes(order.status)
     && order.items.every((item) =>
       item
       && initialMenus.some((menu) => menu.id === item.menuId)
@@ -119,10 +120,16 @@ function loadState() {
       throw new Error("저장된 주문 또는 재고 데이터의 형식이 올바르지 않습니다.");
     }
 
-    return {
-      menus: normalizeMenus(state.menus),
-      orders: state.orders
-    };
+    const loadedMenus = normalizeMenus(state.menus);
+    const loadedOrders = state.orders.map((order) => ({
+      ...order,
+      status: order.status === "접수" ? "제조 대기" : order.status
+    }));
+    if (state.orders.some((order) => order.status === "접수")) {
+      saveState(loadedMenus, loadedOrders);
+    }
+
+    return { menus: loadedMenus, orders: loadedOrders };
   }
 
   const legacyMenus = localStorage.getItem(STORAGE_KEY);
@@ -155,6 +162,7 @@ function createMenuCard(menu) {
   const card = document.createElement("article");
   const soldOut = menu.stock === 0;
   const remaining = menu.stock - getCartQuantity(menu.id);
+  const selection = selectedOptions.get(menu.id) || { shotAdded: false, syrupAdded: false };
   card.className = "menu-card";
   card.innerHTML = `
     <div class="menu-card-top">
@@ -169,12 +177,12 @@ function createMenuCard(menu) {
     <div class="option-area" aria-label="${menu.name} 옵션 선택">
       <span class="option-title">추가 옵션</span>
       <label class="option-label">
-        <input type="checkbox" name="shot-${menu.id}" ${soldOut ? "disabled" : ""}>
+        <input type="checkbox" name="shot-${menu.id}" ${selection.shotAdded ? "checked" : ""} ${soldOut ? "disabled" : ""}>
         샷 추가
         <span class="option-price">+${formatPrice(SHOT_PRICE)}</span>
       </label>
       <label class="option-label">
-        <input type="checkbox" name="syrup-${menu.id}" ${soldOut ? "disabled" : ""}>
+        <input type="checkbox" name="syrup-${menu.id}" ${selection.syrupAdded ? "checked" : ""} ${soldOut ? "disabled" : ""}>
         시럽 추가
         <span class="option-price">+0원</span>
       </label>
@@ -242,6 +250,8 @@ function renderCart() {
 }
 
 function renderOrders() {
+  document.querySelector("#order-count").textContent = String(orders.length);
+
   if (orders.length === 0) {
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
@@ -281,7 +291,8 @@ function renderOrders() {
       ].filter(Boolean);
       const optionText = options.length > 0 ? ` (${options.join(", ")})` : "";
       const listItem = document.createElement("li");
-      listItem.textContent = `${item.name}${optionText} × ${item.quantity}`;
+      const lineTotal = item.unitPrice * item.quantity;
+      listItem.textContent = `${item.name}${optionText} · ${formatPrice(item.unitPrice)} × ${item.quantity} = ${formatPrice(lineTotal)}`;
       itemList.append(listItem);
     });
 
@@ -290,7 +301,7 @@ function renderOrders() {
     const total = document.createElement("strong");
     total.textContent = formatPrice(order.total);
     footer.append(total);
-    if (order.status === "접수") {
+    if (order.status === "제조 대기") {
       const completeButton = document.createElement("button");
       completeButton.className = "complete-order-button";
       completeButton.type = "button";
@@ -395,7 +406,7 @@ function placeOrder() {
     createdAt: new Date().toISOString(),
     items: orderItems,
     total,
-    status: "접수"
+    status: "제조 대기"
   };
   const nextOrders = [...orders, order];
 
@@ -442,6 +453,21 @@ menuGrid.addEventListener("click", (event) => {
   addToCart(button.dataset.addMenu, card);
 });
 
+menuGrid.addEventListener("change", (event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement) || input.type !== "checkbox") return;
+
+  const isShot = input.name.startsWith("shot-");
+  const menuId = input.name.slice(isShot ? 5 : 6);
+  const selection = selectedOptions.get(menuId) || { shotAdded: false, syrupAdded: false };
+  if (isShot) {
+    selection.shotAdded = input.checked;
+  } else {
+    selection.syrupAdded = input.checked;
+  }
+  selectedOptions.set(menuId, selection);
+});
+
 cartItemsElement.addEventListener("click", (event) => {
   const button = event.target.closest("[data-remove-item]");
   if (!button) return;
@@ -460,6 +486,19 @@ ordersListElement.addEventListener("click", (event) => {
 });
 
 placeOrderButton.addEventListener("click", placeOrder);
+
+window.addEventListener("storage", (event) => {
+  if (event.key !== STATE_STORAGE_KEY || event.newValue === null) return;
+
+  try {
+    const state = loadState();
+    menus = state.menus;
+    orders = state.orders;
+    renderAll();
+  } catch (error) {
+    showMessage(`다른 창에서 저장된 데이터를 불러오지 못했습니다. (${error.message})`, true);
+  }
+});
 
 try {
   const state = loadState();
