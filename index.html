@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f4ee">
+    <meta
+      name="description"
+      content="Campus Cafe 음료 메뉴를 확인하고 옵션을 선택해 보세요."
+    >
+    <title>Campus Cafe | 캠퍼스의 작은 쉼표</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#" aria-label="Campus Cafe 홈">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M7 12h16v8a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7v-8Z" />
+              <path d="M23 14h2a4 4 0 0 1 0 8h-3M11 5c0 2 2 2 2 4M17 4c0 2 2 2 2 4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Campus Cafe</strong>
+            <span>캠퍼스의 작은 쉼표</span>
+          </span>
+        </a>
+
+        <nav class="view-switch" aria-label="화면 선택">
+          <button class="view-button is-active" type="button" data-view="customer" aria-pressed="true">
+            고객 화면
+          </button>
+          <button class="view-button" type="button" data-view="admin" aria-pressed="false">
+            관리자 화면
+          </button>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <section class="view-panel customer-view" data-panel="customer" aria-labelledby="menu-title">
+          <div class="hero">
+            <div class="hero-copy">
+              <span class="eyebrow"><span class="eyebrow-dot"></span> 오늘도 좋은 하루</span>
+              <h1 id="menu-title">잠깐 쉬어가도<br><span>괜찮아요.</span></h1>
+              <p>갓 내린 커피 한 잔으로 캠퍼스의 여유를 만나보세요.</p>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <span class="sun-shape"></span>
+              <span class="steam steam-one"></span>
+              <span class="steam steam-two"></span>
+              <span class="cup-shape"><span class="cup-heart">♥</span></span>
+              <span class="cup-handle"></span>
+              <span class="saucer-shape"></span>
+              <span class="bean bean-one"></span>
+              <span class="bean bean-two"></span>
+            </div>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">CAMPUS CAFE MENU</span>
+              <h2>오늘의 메뉴</h2>
+            </div>
+            <p class="menu-count"><span id="menu-count">5</span>가지 음료</p>
+          </div>
+
+          <div id="menu-grid" class="menu-grid" aria-live="polite"></div>
+          <p id="app-message" class="app-message" role="status" hidden></p>
+        </section>
+
+        <section class="view-panel admin-view" data-panel="admin" aria-labelledby="admin-title" hidden>
+          <div class="admin-heading">
+            <span class="eyebrow"><span class="eyebrow-dot"></span> STORE OVERVIEW</span>
+            <h1 id="admin-title">관리자 대시보드</h1>
+            <p>오늘의 주문과 메뉴 재고를 한눈에 확인하세요.</p>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="dashboard-card orders-card" aria-labelledby="orders-title">
+              <div class="card-heading">
+                <div>
+                  <span class="eyebrow">ORDER STATUS</span>
+                  <h2 id="orders-title">주문 현황</h2>
+                </div>
+                <span class="subtle-badge">오늘</span>
+              </div>
+              <div class="empty-state">
+                <span class="empty-icon" aria-hidden="true">☕</span>
+                <strong>아직 접수된 주문이 없어요</strong>
+                <p>새 주문이 들어오면 이곳에서 확인할 수 있어요.</p>
+              </div>
+            </section>
+
+            <section class="dashboard-card stock-card" aria-labelledby="stock-title">
+              <div class="card-heading">
+                <div>
+                  <span class="eyebrow">INVENTORY</span>
+                  <h2 id="stock-title">메뉴별 재고</h2>
+                </div>
+                <span class="subtle-badge"><span id="stock-count">5</span> 메뉴</span>
+              </div>
+              <div id="stock-list" class="stock-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <a class="footer-brand" href="#" aria-label="Campus Cafe 홈">Campus Cafe</a>
+        <p>학부/학과: [상경학부] <span>|</span> 학번: [202502041] <span>|</span> 이름: [문유선]</p>
+        <span class="footer-note">Made for campus moments</span>
+      </footer>
+    </div>
+  </body>
+</html>
