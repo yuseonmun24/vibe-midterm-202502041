@@ -67,7 +67,26 @@
           </div>
 
           <div id="menu-grid" class="menu-grid" aria-live="polite"></div>
-          <p id="app-message" class="app-message" role="status" hidden></p>
+          <section class="cart-section" aria-labelledby="cart-title">
+            <div class="section-heading cart-heading">
+              <div>
+                <span class="eyebrow">YOUR SELECTION</span>
+                <h2 id="cart-title">장바구니</h2>
+              </div>
+              <p class="cart-count"><span id="cart-count">0</span>잔</p>
+            </div>
+            <div class="cart-panel">
+              <div id="cart-items" class="cart-items">
+                <p class="cart-empty">아직 담은 메뉴가 없어요. 메뉴를 골라 담아보세요.</p>
+              </div>
+              <div class="cart-summary">
+                <span>총 주문 금액</span>
+                <strong id="cart-total">0원</strong>
+                <button id="place-order" class="order-button" type="button" disabled>주문하기</button>
+              </div>
+            </div>
+          </section>
+          <p id="app-message" class="app-message" role="status" aria-live="polite" hidden></p>
         </section>
 
         <section class="view-panel admin-view" data-panel="admin" aria-labelledby="admin-title" hidden>
@@ -86,11 +105,7 @@
                 </div>
                 <span class="subtle-badge">오늘</span>
               </div>
-              <div class="empty-state">
-                <span class="empty-icon" aria-hidden="true">☕</span>
-                <strong>아직 접수된 주문이 없어요</strong>
-                <p>새 주문이 들어오면 이곳에서 확인할 수 있어요.</p>
-              </div>
+              <div id="orders-list" class="orders-list"></div>
             </section>
 
             <section class="dashboard-card stock-card" aria-labelledby="stock-title">
